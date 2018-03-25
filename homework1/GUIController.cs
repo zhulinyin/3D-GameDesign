@@ -8,15 +8,15 @@ public class GUIController : MonoBehaviour
     private int[,] map = new int[3, 3];
     enum State { win,fail,draw,normal};
     State state;
-    List<int> arr = new List<int>();
+    List<int> arr = new List<int>();//存储未被走过的格子
     public GUISkin mySkin;
     public Texture2D cha;
     public Texture2D quan;
     static public Texture2D none;
     private Texture2D[,] background = new Texture2D[3, 3];
-    private bool myTurn;
-    private bool have_choose;
-    private void Start()
+    private bool myTurn;//是否轮到玩家
+    private bool have_choose;//是否已经选择出手顺序
+    private void Start()//游戏初始化
     {
         for(int i = 0; i < 9; i++)
         {
@@ -37,7 +37,7 @@ public class GUIController : MonoBehaviour
     {
         GUI.skin = mySkin;
         GUI.BeginGroup(new Rect(Screen.width / 2 - 150, Screen.height / 2 - 180, 300, 400));
-        if (!have_choose)
+        if (!have_choose)//让玩家选择出手顺序
         {
             GUI.Box(new Rect(0, 0, 300, 300), "请选择出手顺序");
             if(GUI.Button(new Rect(50, 100, 200, 30), "先手"))
@@ -58,7 +58,7 @@ public class GUIController : MonoBehaviour
                 for (int j = 0; j < 3; j++)
                 {
                     if (GUI.Button(new Rect(i * 100, j * 100, 100, 100), background[i, j]) && myTurn && map[i, j] == 0 &&
-                        state==State.normal)
+                        state==State.normal)//玩家回合
                     {
                         map[i, j] = 1;
                         background[i, j] = cha;
@@ -66,7 +66,7 @@ public class GUIController : MonoBehaviour
                         myTurn = false;
                         state = Update_state(1);
                     }
-                    else if (!myTurn && state==State.normal)
+                    else if (!myTurn && state==State.normal)//AI回合
                     {
                         int index = Calculate_index();
                         map[index / 3, index % 3] = 2;
@@ -77,7 +77,7 @@ public class GUIController : MonoBehaviour
                     }
                 }
             }            
-            if(state!=State.normal)
+            if(state!=State.normal)//判断游戏状态
             {
                 string message=null;
                 if (state == State.win)
@@ -103,7 +103,7 @@ public class GUIController : MonoBehaviour
         
         GUI.EndGroup();
     }
-    State Update_state(int x)
+    State Update_state(int x)//更新游戏状态
     {
         State s = State.normal;
         if ((map[0, 0] == x && map[0, 1] == x && map[0, 2] == x) ||
@@ -121,7 +121,7 @@ public class GUIController : MonoBehaviour
         else if (arr.Count == 0) s = State.draw;
         return s;
     }
-    int Calculate_index()
+    int Calculate_index()//计算出AI的下一步，AI赢>玩家不能赢>随机
     {
         int best_index= arr[(int)Random.Range(0, arr.Count)]; ;
         for(int i = 0; i < arr.Count; i++)
